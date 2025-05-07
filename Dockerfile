@@ -32,9 +32,6 @@ COPY --from=build /app/prisma ./prisma
 COPY --from=build /app/package.json ./
 COPY --from=build /app/.prisma ./node_modules/.prisma
 
-# Copia também o .env (você pode montar via docker-compose)
-COPY .env .env
-
 # Gera cliente Prisma e roda as migrações
 RUN npx prisma generate
 RUN npx prisma migrate deploy
