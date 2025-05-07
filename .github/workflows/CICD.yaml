@@ -1,0 +1,52 @@
+name: CICD
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    build:
+        name: CI
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Fazendo checkout do código
+              uses: actions/checkout@v2
+
+            - name: Fazendo o build e publicando a imagem
+              uses: docker/build-push-action@v1.1.0
+              with:
+                username: blgianini
+                password: ${{ secrets.DOCKER_SECRET }}
+                repository: blgianini/crud-logger
+                tags: ${{ github.sha }}, latest
+
+    deploy:
+        name: CD
+        runs-on: ubuntu-latest
+        needs: build
+
+        steps:
+            - name: Fazendo checkout do repositório de config
+              uses: actions/checkout@v2
+              with:
+                repository: kubernetes-lab-blgianini/crud-logger-config
+                token: ${{ secrets.TOKEN_GITHUB }}
+
+            - name: Rodando o Kustomize
+              uses: imranismail/setup-kustomize@v1
+              with:
+                kustomize_version: v3.6.1
+
+            - name: Atualizando os valores da imagem
+              run: |
+                cd kubernetes
+                kustomize edit set image imagem=blgianini/crud-logger:${{ github.sha }}
+
+            - name: Criando commit da tag nova da imagem
+              run: |
+                git config --logal user.email "actions@github.com"
+                git config --local user.name "Esteira CICD"
+                git add .
+                git commit -am "Mudando a tag da Imagem"
+                git push
