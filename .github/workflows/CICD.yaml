@@ -45,7 +45,7 @@ jobs:
 
             - name: Criando commit da tag nova da imagem
               run: |
-                git config --logal user.email "actions@github.com"
+                git config --local user.email "actions@github.com"
                 git config --local user.name "Esteira CICD"
                 git add .
                 git commit -am "Mudando a tag da Imagem"
