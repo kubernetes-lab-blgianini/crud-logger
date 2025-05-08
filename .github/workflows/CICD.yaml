@@ -42,6 +42,7 @@ jobs:
               run: |
                 cd kubernetes
                 kustomize edit set image imagem=blgianini/crud-logger:${{ github.sha }}
+                kustomize build
 
             - name: Criando commit da tag nova da imagem
               run: |
